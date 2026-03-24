@@ -3,26 +3,69 @@ name: CI
 on:
     push:
         branches:
-            - main
+            - main    
     pull_request:
         branches:
             - main
 
 jobs:
-    build:
+    # build:
+        # runs-on: ubuntu-latest
+
+        # steps:
+        # - name: Checkout code
+        #     uses: actions/checkout@v2
+
+        # - name: Set up Node.js
+        #     uses: actions/setup-node@v2
+        #     with:
+        #     node-version: '14'
+
+        # - name: Install dependencies
+        #     run: npm install
+
+        # - name: Run tests
+        #     run: npm test
+    
+    test:
+        name: Run Tests
+        timeout-minutes: 15 # Set a timeout for the test job
         runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [22] # Test on multiple Node.js versions
+
+        environment: MONGO_URI
 
         steps:
         - name: Checkout code
-            uses: actions/checkout@v2
-
+          uses: actions/checkout@v2
+        
         - name: Set up Node.js
-            uses: actions/setup-node@v2
-            with:
-                node-version: '14'
+          uses: actions/setup-node@v2
+          with:
+            node-version: '14'
+
+        - run: pm2 stop all
+
+        - name: Install Backend Dependencies
+          working-directory: ./backend
+          run: | 
+                npm install --global yarn
+                yarn --version
+                yarn install
+        
+        - name: Install Frontend Dependencies
+          working-directory: ./frontend
+          run: | 
+            df -h
+            sudo rm -rf ./build
+            yarn install
+            yarn run build
 
         - name: Install dependencies
-            run: npm install
+          run: npm install
 
         - name: Run tests
-            run: npm test
+          run: npm test
