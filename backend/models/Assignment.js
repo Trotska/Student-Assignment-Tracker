@@ -6,7 +6,7 @@ const assignmentSchema = new mongoose.Schema({
     userID: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     description: { type: String },
     course: { type: String },
-    date: { type: Date, required: true, unique: true },
+    date: { type: Date, required: true},
     priority: { type: String, required: true },
 });
 
