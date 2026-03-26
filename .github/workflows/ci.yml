@@ -47,7 +47,7 @@ jobs:
           with:
             node-version: '14'
 
-        - run: pm2 stop all
+        #- run: pm2 stop all
 
         - name: Install Backend Dependencies
           working-directory: ./backend
@@ -70,9 +70,9 @@ jobs:
             touch .env
             echo "${{ secrets.PROD }}" > .env
 
-        - run: pm2 start all
+        #- run: pm2 start all
 
-        - run: pm2 restart all
+        #- run: pm2 restart all
 
         # - name: Install dependencies
         #   run: npm install
