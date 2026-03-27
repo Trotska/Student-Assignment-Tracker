@@ -9,8 +9,7 @@ const AssignmentForm = ({ assignments, setAssignments, editingAssignment, setEdi
     description: '',
     course: '', 
     date: '',
-    priority: '',
-    deadline: '' });
+    priority: '', });
 
   useEffect(() => {
     if (editingAssignment) {
@@ -20,10 +19,10 @@ const AssignmentForm = ({ assignments, setAssignments, editingAssignment, setEdi
         course: editingAssignment.course,
         date: editingAssignment.date,
         priority: editingAssignment.priority,
-        deadline: editingAssignment.deadline,
+        //deadline: editingAssignment.deadline,
       });
     } else {
-      setFormData({ title: '', description: '', course: '', date: '', priority: '', deadline: '' });
+      setFormData({ title: '', description: '', course: '', date: '', priority: ''});
     }
   }, [editingAssignment]);
 
@@ -42,14 +41,13 @@ const AssignmentForm = ({ assignments, setAssignments, editingAssignment, setEdi
         setAssignments([...assignments, response.data]);
       }
       setEditingAssignment(null);
-      setFormData({ title: '', description: '', course: '', date: '', priority: '', deadline: '' });
+      setFormData({ title: '', description: '', course: '', date: '', priority: ''});
     } catch (error) {
       alert('Failed to save assignment.');
     }
   };
 
-
- //            name,
+ //            title,
  //           userID: req.user.id,
  //           description,
  //           course,
@@ -91,12 +89,6 @@ const AssignmentForm = ({ assignments, setAssignments, editingAssignment, setEdi
         placeholder="Priority"
         value={formData.priority}
         onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-        className="w-full mb-4 p-2 border rounded"
-      />
-      <input
-        type="date"
-        value={formData.deadline}
-        onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
         className="w-full mb-4 p-2 border rounded"
       />
       <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded">

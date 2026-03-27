@@ -4,7 +4,7 @@ const Assignment = require('../models/Assignment');
 //NEEDS TESTING
 const getAssignmentsByUser = async (req, res) => {
     try {
-        const assignments = await Assignment.find({ userID: req.user.id });
+        const assignments = await Assignment.find({ userId: req.user.id });
         res.status(200).json(assignments);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -13,11 +13,11 @@ const getAssignmentsByUser = async (req, res) => {
 
 // Controller for handling assignment-related operations
 const createAssignment = async (req, res) => {
-    const { name, description, course, date, priority } = req.body;
+    const { title, description, course, date, priority } = req.body;
     try {
         const assignment = await Assignment.create({
-            name,
-            userID: req.user.id,
+            title,
+            userId: req.user.id,
             description,
             course,
             date,

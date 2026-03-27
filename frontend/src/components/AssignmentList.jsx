@@ -24,7 +24,7 @@ const AssignmentList = ({ assignments, setAssignments, setEditingAssignment }) =
           <p>Course: {assignment.course}</p>
           <p>Date: {new Date(assignment.date).toLocaleDateString()}</p>
           <p>Priority: {assignment.priority}</p>
-          <p className="text-sm text-gray-500">Deadline: {new Date(assignment.deadline).toLocaleDateString()}</p>
+          {/* <p className="text-sm text-gray-500">Deadline: {new Date(assignment.deadline).toLocaleDateString()}</p> */}
           <div className="mt-2">
             <button
               onClick={() => setEditingAssignment(assignment)}
