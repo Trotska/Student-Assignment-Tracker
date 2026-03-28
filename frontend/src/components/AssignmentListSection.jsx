@@ -9,7 +9,7 @@ import AssignmentCreate from "./AssignmentCreate";
 export const AssignmentListSection = ({ assignments = [], isLoading = false, setAssignments, setAssignmentsEditing }) => {
   const { user } = useAuth();
   const [expandedId, setExpandedId] = useState(null);
-  //const [checked, setChecked] = useState({});
+  const [checked, setChecked] = useState({});
   const [editingDescriptionId, setEditingDescriptionId] = useState(null);
   const [descriptionDrafts, setDescriptionDrafts] = useState({});
   const [savingDescriptionId, setSavingDescriptionId] = useState(null);
@@ -47,7 +47,7 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
 
   const handleCheck = (e, id) => {
     e.stopPropagation();
-    //setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
+    setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   const handleClose = (e, id) => {
