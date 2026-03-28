@@ -1,0 +1,315 @@
+import { useState } from "react";
+//import { CheckSmall } from "./CheckSmall";
+//import { Icon4 } from "./Icon4";
+
+// const assignments = [
+//   {
+//     id: 1,
+//     initials: "IFN",
+//     code: "IFN700",
+//     date: "Apr 1,",
+//     year: "2025",
+//     time: "9:41 AM",
+//     priority: "High",
+//     priorityColorLeft: "bg-variable-collection-priority-red",
+//     priorityColorRight: "bg-[#fb2a2d96]",
+//     status: "In Progress",
+//     dateMarginLeft: "",
+//     dateMarginRight: "",
+//     timeMarginRight: "",
+//     description: 'SFJDSFJSIFJEFSFIFIFJFSJFISEFIJFSJFJ',
+//   },
+//   {
+//     id: 2,
+//     initials: "IFN",
+//     code: "IFN658",
+//     date: "Apr 15,",
+//     year: "2025",
+//     time: "12:00 AM",
+//     priority: "Low",
+//     priorityColorLeft: "bg-variable-collection-priority-green",
+//     priorityColorRight: "bg-[#47d108]",
+//     status: "To Do",
+//     dateMarginLeft: "ml-[-1.50px]",
+//     dateMarginRight: "mr-[-1.50px]",
+//     timeMarginRight: "mr-[-4.00px]",
+//     description: 'FSFJSFJSJFJFSJFSJFJSFJSF',
+//   },
+//   {
+//     id: 3,
+//     initials: "CAB",
+//     code: "CAB401",
+//     date: "Apr 20,",
+//     year: "2025",
+//     time: "9:00 PM",
+//     priority: "Medium",
+//     priorityColorLeft: "bg-variable-collection-priority-orange",
+//     priorityColorRight: "bg-variable-collection-priority-orange",
+//     status: "In Progress",
+//     dateMarginLeft: "ml-[-2.50px]",
+//     dateMarginRight: "mr-[-2.50px]",
+//     timeMarginRight: "",
+//     description: 'null',
+//   },
+//   {
+//     id: 4,
+//     initials: "A",
+//     code: "CAB301",
+//     date: "Apr 31,",
+//     year: "2025",
+//     time: "12:00 AM",
+//     priority: "High",
+//     priorityColorLeft: "bg-variable-collection-priority-red",
+//     priorityColorRight: "bg-variable-collection-priority-red",
+//     status: "In Progress",
+//     dateMarginLeft: "ml-[-1.50px]",
+//     dateMarginRight: "mr-[-1.50px]",
+//     timeMarginRight: "mr-[-4.00px]",
+//     description: `This unit teaches you classical data structures and algorithms used in software development and the fundamental principles for analysing the time efficiency of algorithms, allowing you to distinguish software solutions that can process large amounts of data or perform complex calculations effectively from those that run unacceptably slowly or not at all. In this unit you will examine a range of different algorithms, review the principles used to predict their efficiency and perform empirical measurements of specific algorithms to confirm the theoretical predictions.\n\nAssessment 1: Assignment 1\nThis assignment is designed to evaluate your understanding of linear data structures and algorithms, as well as your ability to apply this knowledge in developing reusable Abstract Data Types (ADTs).\nYou will be provided with two to three ADT specifications in the form of C# interfaces. Your task is to implement these specifications using the appropriate linear data structures and algorithms. Additionally, you will need to design efficient algorithms to solve computational problems related to the ADT operations and analyse the time complexity of your solutions.\nThis assignment is eligible for the 48-hour late submission period and assignment extensions.`,
+//   },
+// ];
+
+export const AssignmentListSection = ({ assignments = [], isLoading = false, setAssignments, setAssignmentsEditing }) => {
+  const [expandedId, setExpandedId] = useState(null);
+  const [checked, setChecked] = useState({});
+
+  const safeAssignments = Array.isArray(assignments) ? assignments : [];
+
+  const getCourseInitials = (course) => {
+    if (!course || typeof course !== "string") return "N/A";
+    return course.trim().slice(0, 3).toUpperCase();
+  };
+
+  const formatDateParts = (rawDate) => {
+    const parsedDate = new Date(rawDate);
+    if (Number.isNaN(parsedDate.getTime())) {
+      return { shortDate: "No date", year: "----", time: "--:--" };
+    }
+
+    const shortDate = parsedDate.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+    });
+    const year = parsedDate.getFullYear().toString();
+    const time = parsedDate.toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+
+    return { shortDate, year, time };
+  };
+
+  const handleRowClick = (id) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
+
+  const handleCheck = (e, id) => {
+    e.stopPropagation();
+    setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleClose = (e, id) => {
+    e.stopPropagation();
+    setExpandedId(null);
+  };
+
+  return (
+    <div className="w-[1472px] h-[635px] items-end absolute top-[152px] left-[88px] bg-variable-collection-background-lightblue rounded-[28px] overflow-hidden flex flex-col">
+      <div className="items-start gap-4 p-6 relative self-stretch w-full flex-[0_0_auto] flex flex-col">
+        <div className="text-[length:var(--m3-headline-small-font-size)] leading-[var(--m3-headline-small-line-height)] relative self-stretch mt-[-1.00px] font-m3-headline-small font-[number:var(--m3-headline-small-font-weight)] text-[#1d1b20] tracking-[var(--m3-headline-small-letter-spacing)] [font-style:var(--m3-headline-small-font-style)]">
+          Assignments
+        </div>
+      </div>
+
+      {/*Assignment List*/}    
+      <div className="items-stretch relative self-stretch w-full flex-[0_0_auto] flex flex-col">
+        {isLoading && (
+          <div className="px-6 py-4 text-[#49454f] text-sm">Loading assignments...</div>
+        )}
+
+        {!isLoading && safeAssignments.length === 0 && (
+          <div className="px-6 py-4 text-[#49454f] text-sm">
+            No assignments found yet. Create one from the form to see it here.
+          </div>
+        )}
+
+        {safeAssignments.map((assignment, index) => {
+          const rowId = assignment?._id || assignment?.id || index;
+          const { shortDate, year, time } = formatDateParts(assignment?.date);
+
+          return (
+          <div key={rowId} className="self-stretch w-full">
+            <div
+              className="flex flex-col items-stretch justify-center relative self-stretch w-full cursor-pointer"
+              style={{
+                height:
+                  index === 0 || index === 2 || index === 3 ? "57px" : "56px",
+              }}
+              onClick={() => handleRowClick(rowId)}
+            >
+              {index === 0 && (
+                <div className="flex flex-col items-start justify-center px-4 py-0 relative self-stretch w-full flex-[0_0_auto] mt-[-0.50px]">
+                  <div className="relative self-stretch w-full h-px object-cover bg-[#cac4d0]" />
+                </div>
+              )}
+
+              {index === 1 && (
+                <div className="flex flex-col items-start justify-center px-4 py-0 relative self-stretch w-full flex-[0_0_auto] mt-[-1.00px]">
+                  <div className="relative self-stretch w-full h-px object-cover bg-[#cac4d0]" />
+                </div>
+              )}
+
+              {(index === 2 || index === 3) && (
+                <div className="flex flex-col items-start justify-center px-4 py-0 relative self-stretch w-full flex-[0_0_auto] mt-[-0.50px]">
+                  <div className="relative self-stretch w-full h-px object-cover bg-[#cac4d0]" />
+                </div>
+              )}
+
+              <div className="absolute w-full h-full top-0 left-0" />
+              {/*initials*/}              
+              <div className="flex h-14 items-center gap-4 px-4 py-2 relative self-stretch w-full">
+                <div className="inline-flex flex-col items-start flex-[0_0_auto] justify-center relative">
+                  <div className="w-10 h-10 rounded-[100px] relative bg-variable-collection-button-blue overflow-hidden">
+                    <div className="absolute top-[calc(50.00%_-_20px)] left-[calc(50.00%_-_20px)] w-10 h-10 flex items-center justify-center font-m3-title-medium font-[number:var(--m3-title-medium-font-weight)] text-[#4f378a] text-[length:var(--m3-title-medium-font-size)] text-center tracking-[var(--m3-title-medium-letter-spacing)] leading-[var(--m3-title-medium-line-height)] [font-style:var(--m3-title-medium-font-style)]">
+                      {getCourseInitials(assignment?.course)}
+                    </div>
+                  </div>
+                </div>
+
+                {/*Code Change to Title */}
+                <div className="flex flex-col items-start justify-center relative flex-1 self-stretch grow">
+                  <div className="relative flex items-center self-stretch [font-family:'Roboto-Regular',Helvetica] font-normal text-[#1d1b20] text-base tracking-[0.50px] leading-6">
+                    {/* onclick={handleRowClick} */}
+                    {assignment?.title || "Untitled Assignment"}
+                  </div>
+                </div>
+
+
+                {/*Date*/}               
+                <div className="flex w-[204px] h-[34px] items-center justify-end gap-1.5 relative rounded-md">
+                  <div className="flex w-[119px] h-[34px] items-center justify-center gap-[5px] px-[11px] py-1.5 relative ml-[-12.00px] bg-variable-collection-button-blue rounded-[100px]">
+                    <div
+                      // className={`relative w-fit mt-[-1.00px] ${assignment.dateMarginLeft} font-body-regular font-[number:var(--body-regular-font-weight)] text-black text-[length:var(--body-regular-font-size)] text-center tracking-[var(--body-regular-letter-spacing)] leading-[var(--body-regular-line-height)] whitespace-nowrap [font-style:var(--body-regular-font-style)]`}
+                    >
+                      {shortDate}
+                    </div>
+                    <div
+                      // className={`relative w-fit mt-[-1.00px] ${assignment.dateMarginRight} font-body-regular font-[number:var(--body-regular-font-weight)] text-black text-[length:var(--body-regular-font-size)] text-center tracking-[var(--body-regular-letter-spacing)] leading-[var(--body-regular-line-height)] whitespace-nowrap [font-style:var(--body-regular-font-style)]`}
+                    >
+                      {year}
+                    </div>
+                  </div>
+                    
+                  {/*Time */}
+                  <div className="flex w-[91px] h-[34px] items-start gap-2.5 px-[11px] py-1.5 relative bg-variable-collection-button-blue rounded-[100px]">
+                    <div
+                      // className={`${assignment.timeMarginRight} relative w-fit mt-[-1.00px] font-body-regular font-[number:var(--body-regular-font-weight)] text-black text-[length:var(--body-regular-font-size)] text-center tracking-[var(--body-regular-letter-spacing)] leading-[var(--body-regular-line-height)] whitespace-nowrap [font-style:var(--body-regular-font-style)]`}
+                    >
+                      {time}
+                    </div>
+                  </div>
+                </div>
+
+                {/*Prioritys */}
+                <div className="inline-flex items-center gap-2.5 relative flex-[0_0_auto] mt-[-4.00px] mb-[-4.00px]">
+                  <div className="inline-flex h-12 items-center justify-center gap-0.5 relative flex-[0_0_auto] rounded-[20px]">
+                    <div
+                      // className={`${assignment.priorityColorLeft} inline-flex flex-col h-10 items-center justify-center relative flex-[0_0_auto] rounded-[20px_4px_4px_20px] overflow-hidden`}
+                    >
+                      <div className="inline-flex items-center gap-2 pl-4 pr-3 py-2.5 relative flex-1 grow">
+                        <div className="relative w-fit mt-[-1.00px] font-m3-label-large font-[number:var(--m3-label-large-font-weight)] text-variable-collection-text-color text-[length:var(--m3-label-large-font-size)] tracking-[var(--m3-label-large-letter-spacing)] leading-[var(--m3-label-large-line-height)] whitespace-nowrap [font-style:var(--m3-label-large-font-style)]">
+                          {assignment?.priority || "Not set"}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      // className={`${assignment.priorityColorRight} flex flex-col w-12 h-10 items-center justify-center relative rounded-[4px_20px_20px_4px] overflow-hidden`}
+                    >
+                      <div className="flex items-center justify-center pl-3 pr-3.5 py-[9px] relative flex-1 self-stretch w-full grow">
+                        {/* <Icon4 className="!relative !w-[22px] !h-[22px] !aspect-[1]" /> */}
+                      </div>
+                    </div>
+                  </div>
+                    
+                {/*Progress bar */}
+                  <div className="flex flex-col w-[93px] h-[43px] items-center justify-center gap-0.5 rounded-lg relative bg-variable-collection-button-blue overflow-hidden">
+                    <div className="flex items-center justify-center gap-2 px-6 py-4 relative self-stretch w-full flex-[0_0_auto] mt-[-6.50px] overflow-hidden">
+                      <div className="relative flex items-center w-fit mt-[4.00px] ml-[-19.50px] mr-[-19.50px] z-0 font-m3-title-medium font-[number:var(--m3-title-medium-font-weight)] text-variable-collection-text-color text-[length:var(--m3-title-medium-font-size)] tracking-[var(--m3-title-medium-letter-spacing)] leading-[var(--m3-title-medium-line-height)] whitespace-nowrap [font-style:var(--m3-title-medium-font-style)]">
+                        {/* {assignment.status} */}
+                      </div>
+                    </div>
+                  </div>
+
+                  {expandedId === rowId ? (
+                    <div
+                      className="inline-flex flex-col items-center justify-center pl-0 pr-1 py-1 relative flex-[0_0_auto] cursor-pointer"
+                      onClick={(e) => handleClose(e, rowId)}
+                    >
+                      <div className="inline-flex items-center justify-center p-[11px] relative flex-[0_0_auto] rounded-[100px]">
+                        <div className="relative w-[18px] h-[18px] bg-variable-collection-checkmark-blue rounded-sm flex items-center justify-center">
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 14 14"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M1 1L13 13M13 1L1 13"
+                              stroke="white"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      className="inline-flex flex-col items-center justify-center pl-0 pr-1 py-1 relative flex-[0_0_auto] cursor-pointer"
+                      onClick={(e) => handleCheck(e, rowId)}
+                    >
+                      <div className="inline-flex items-center justify-center p-[11px] relative flex-[0_0_auto] rounded-[100px]">
+                        <div className="relative w-[18px] h-[18px] bg-variable-collection-checkmark-blue rounded-sm" />
+                        {/* <CheckSmall className="!absolute !top-[calc(50.00%_-_12px)] !left-[calc(50.00%_-_12px)] !w-6 !h-6" /> */}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {index === 1 && (
+                <div className="flex flex-col items-start justify-center px-4 py-0 relative self-stretch w-full flex-[0_0_auto] mb-[-1.00px]">
+                  <div className="relative self-stretch w-full h-px object-cover bg-[#cac4d0]" />
+                </div>
+              )}
+
+              {index === 2 && (
+                <div className="flex flex-col items-start justify-center px-4 py-0 relative self-stretch w-full flex-[0_0_auto] mb-[-0.50px]">
+                  <div className="relative self-stretch w-full h-px object-cover bg-[#cac4d0]" />
+                </div>
+              )}
+            </div>
+            
+            {/*expanded description */}
+            {expandedId === rowId && assignment?.description && (
+              <div className="relative self-stretch w-full  flex-[0_0_auto] px-4 pb-4">
+                <div className="w-full rounded-[16px] bg-variable-collection-button-blue p-6 overflow-hidden">
+                  <div className="[font-family:'Roboto-Regular',Helvetica] font-normal text-[#1d1b20] text-sm tracking-[0.25px] leading-5 whitespace-pre-line">
+                    {assignment.description}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+        })}
+      </div>
+
+      <div className="flex items-start justify-end gap-2 pl-4 pr-6 py-5 relative self-stretch w-full flex-[0_0_auto]" />
+    </div>
+
+    
+  );
+};
