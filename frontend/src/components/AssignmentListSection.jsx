@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axiosInstance from "../axiosConfig";
 import { useAuth } from "../context/AuthContext";
+import AssignmentForm  from "./AssignmentForm";
+import AssignmentCreate from "./AssignmentCreate";
 //import { CheckSmall } from "./CheckSmall";
 //import { Icon4 } from "./Icon4";
 
@@ -78,6 +80,7 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
   const [editingDescriptionId, setEditingDescriptionId] = useState(null);
   const [descriptionDrafts, setDescriptionDrafts] = useState({});
   const [savingDescriptionId, setSavingDescriptionId] = useState(null);
+  const [newAssignmentCreated, setNewAssignmentCreated] = useState(false);
 
   const safeAssignments = Array.isArray(assignments) ? assignments : [];
 
@@ -179,6 +182,31 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
     } finally {
       setSavingDescriptionId(null);
     }
+  };
+ //Handles the create assignment button
+ const handleCreateNewAssignmentButton = () => {
+    if(setNewAssignmentCreated === true){
+      setNewAssignmentCreated(false);
+    } else {
+      setNewAssignmentCreated(true);
+    }
+   //setNewAssignmentCreated(true);
+    //setTimeout(() => setNewAssignmentCreated(false), 3000);
+  };
+
+  const handleCreateNewAssignment = (assignment) => {
+    setAssignmentsEditing({
+      title: "",
+      description: "",
+      course: "",
+      date: "",
+      priority: "",
+    });
+
+    
+
+
+
   };
 
   return (
@@ -412,8 +440,25 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
       </div>
 
       {/*Create new assignment Button*/}
-      <div className="flex items-start justify-start gap-2 pl-4 pr-6 py-5 relative self-stretch w-full flex-[0_0_auto]">
-       Test
+      <div className="flex items-start justify-start gap-2 pl-4 pr-6 py-5 relative self-stretch w-full flex-[0_0_auto]" onClick={handleCreateNewAssignment}>
+       {newAssignmentCreated ? (
+       (<div className="" onClick={handleCreateNewAssignmentButton}>
+        <div>
+        <AssignmentCreate
+        assignments={assignments}
+        setAssignments={setAssignments}
+        editingAssignment={setAssignmentsEditing}
+        setEditingAssignment={setAssignmentsEditing}/>
+        </div>
+       </div>)
+       
+       ) : (
+               (<div className="" onClick={handleCreateNewAssignmentButton}>
+
+        Create New Assignment
+       </div>)
+        )}
+
       </div>  
       
 
