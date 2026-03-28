@@ -1,4 +1,6 @@
 import { useState } from "react";
+import axiosInstance from "../axiosConfig";
+import { useAuth } from "../context/AuthContext";
 //import { CheckSmall } from "./CheckSmall";
 //import { Icon4 } from "./Icon4";
 
@@ -70,8 +72,12 @@ import { useState } from "react";
 // ];
 
 export const AssignmentListSection = ({ assignments = [], isLoading = false, setAssignments, setAssignmentsEditing }) => {
+  const { user } = useAuth();
   const [expandedId, setExpandedId] = useState(null);
   const [checked, setChecked] = useState({});
+  const [editingDescriptionId, setEditingDescriptionId] = useState(null);
+  const [descriptionDrafts, setDescriptionDrafts] = useState({});
+  const [savingDescriptionId, setSavingDescriptionId] = useState(null);
 
   const safeAssignments = Array.isArray(assignments) ? assignments : [];
 
@@ -111,6 +117,68 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
   const handleClose = (e, id) => {
     e.stopPropagation();
     setExpandedId(null);
+  };
+
+  const handleDescriptionClick = (e, assignment) => {
+    e.stopPropagation();
+    const rowId = assignment?._id || assignment?.id;
+    if (!rowId) return;
+
+    setEditingDescriptionId(rowId);
+    setDescriptionDrafts((prev) => ({
+      ...prev,
+      [rowId]: assignment?.description || "",
+    }));
+  };
+
+  const handleDescriptionDraftChange = (rowId, value) => {
+    setDescriptionDrafts((prev) => ({
+      ...prev,
+      [rowId]: value,
+    }));
+  };
+
+  const handleCancelDescriptionEdit = (e) => {
+    e.stopPropagation();
+    setEditingDescriptionId(null);
+  };
+
+  const handleSaveDescription = async (e, assignment) => {
+    e.stopPropagation();
+
+    const assignmentId = assignment?._id;
+    if (!assignmentId) {
+      alert("Cannot update assignment without a valid ID.");
+      return;
+    }
+
+    if (!user?.token) {
+      alert("Please log in again before saving changes.");
+      return;
+    }
+
+    const newDescription = descriptionDrafts[assignmentId] ?? "";
+
+    setSavingDescriptionId(assignmentId);
+    try {
+      const response = await axiosInstance.put(
+        `/api/assignments/${assignmentId}`,
+        { description: newDescription },
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+
+      setAssignments((prev) =>
+        prev.map((item) =>
+          item._id === assignmentId ? response.data : item
+        )
+      );
+
+      setEditingDescriptionId(null);
+    } catch (error) {
+      alert("Failed to save description.");
+    } finally {
+      setSavingDescriptionId(null);
+    }
   };
 
   return (
@@ -293,19 +361,61 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
             </div>
             
             {/*expanded description */}
-            {expandedId === rowId && assignment?.description && (
+            {expandedId === rowId && (
               <div className="relative self-stretch w-full  flex-[0_0_auto] px-4 pb-4">
                 <div className="w-full rounded-[16px] bg-variable-collection-button-blue p-6 overflow-hidden">
-                  <div className="[font-family:'Roboto-Regular',Helvetica] font-normal text-[#1d1b20] text-sm tracking-[0.25px] leading-5 whitespace-pre-line">
-                    {assignment.description}
-                  </div>
+                  {editingDescriptionId === rowId ? (
+                    <div className="flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
+                      <textarea
+                        value={descriptionDrafts[rowId] ?? ""}
+                        onChange={(e) => handleDescriptionDraftChange(rowId, e.target.value)}
+                        className="w-full min-h-[120px] rounded-md border border-[#9a8fae] bg-white px-3 py-2 text-sm text-[#1d1b20]"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => handleSaveDescription(e, assignment)}
+                          disabled={savingDescriptionId === rowId}
+                          className="rounded-md bg-[#4f378a] px-4 py-2 text-white text-sm disabled:opacity-60"
+                        >
+                          {savingDescriptionId === rowId ? "Saving..." : "Save"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleCancelDescriptionEdit}
+                          disabled={savingDescriptionId === rowId}
+                          className="rounded-md bg-[#d0c8dd] px-4 py-2 text-[#1d1b20] text-sm disabled:opacity-60"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      className="[font-family:'Roboto-Regular',Helvetica] font-normal text-[#1d1b20] text-sm tracking-[0.25px] leading-5 whitespace-pre-line cursor-text"
+                      onClick={(e) => handleDescriptionClick(e, assignment)}
+                      title="Click to edit description"
+                    >
+                      {assignment?.description || "Click here to add a description."}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
+
           </div>
+
         );
+
         })}
+
       </div>
+
+      {/*Create new assignment Button*/}
+      <div className="flex items-start justify-start gap-2 pl-4 pr-6 py-5 relative self-stretch w-full flex-[0_0_auto]">
+       Test
+      </div>  
+      
 
       <div className="flex items-start justify-end gap-2 pl-4 pr-6 py-5 relative self-stretch w-full flex-[0_0_auto]" />
     </div>
