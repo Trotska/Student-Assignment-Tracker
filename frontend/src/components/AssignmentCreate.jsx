@@ -60,7 +60,7 @@ const AssignmentCreate = ({ assignments, setAssignments }) => {
       onSubmit={handleSubmit}
       className="w-full rounded-[16px] border border-[#b4bfca] bg-variable-collection-background-lightblue p-3"
     >
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[56px_minmax(180px,1fr)_140px_110px_140px_minmax(180px,1fr)_90px] lg:items-center">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[56px_minmax(180px,1fr)_140px_110px_140px_minmax(490px,1fr)_90px] lg:items-center">
         <div className="h-10 w-10 rounded-full bg-variable-collection-button-blue text-[#4f378a] font-medium flex items-center justify-center">
           {initials || "NEW"}
         </div>
@@ -80,7 +80,7 @@ const AssignmentCreate = ({ assignments, setAssignments }) => {
           type="date"
           value={formData.date}
           onChange={handleChange}
-          className="h-10 rounded-full border border-transparent bg-variable-collection-button-blue px-4 text-sm"
+          className="h-10 rounded-full border border-[#b4bfca] bg-white px-4 text-sm"
           required
         />
 
@@ -90,7 +90,7 @@ const AssignmentCreate = ({ assignments, setAssignments }) => {
           placeholder="Course"
           value={formData.course}
           onChange={handleChange}
-          className="h-10 rounded-full border border-transparent bg-variable-collection-button-blue px-4 text-sm"
+          className="h-10 rounded-full border border-[#b4bfca] bg-white px-4 text-sm"
         />
 
         <input
