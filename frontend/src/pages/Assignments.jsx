@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axiosInstance from '../axiosConfig';
-import AssignmentForm from '../components/AssignmentForm';
+//import AssignmentForm from '../components/AssignmentForm';
 import { useAuth } from '../context/AuthContext';
 import { AssignmentListSection } from '../components/AssignmentListSection';
 
@@ -32,13 +32,6 @@ const Assignments = () => {
    
     
     <div className="container mx-auto p-6">
-
-      {/* <AssignmentForm
-        assignments={assignments}
-        setAssignments={setAssignments}
-        editingAssignment={editingAssignment}
-        setEditingAssignment={setEditingAssignment}
-      /> */}
 
       <AssignmentListSection
       assignments={assignments}
