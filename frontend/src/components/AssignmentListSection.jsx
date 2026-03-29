@@ -6,7 +6,7 @@ import AssignmentCreate from "./AssignmentCreate";
 
 ///Bug Lists
 //1. first assignment in the list isnt information within it fields
-//2.
+//2. Check mark box ticks when the assignment box is expanded, should only tick when the check mark box is clicked
 
 //Possible Patches
 //1. add reacts UseEffect to properly handle states
