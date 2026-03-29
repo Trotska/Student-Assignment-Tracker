@@ -15,8 +15,16 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
   const [savingDescriptionId, setSavingDescriptionId] = useState(null);
   const [newAssignmentCreated, setNewAssignmentCreated] = useState(false);
 
+
+  //assignment drafts states
+  const [assignmentDrafts, setAssignmentDrafts] = useState({});
+  const [savingAssignmentId, setSavingAssignmentId] = useState(null);
+  
+
   const safeAssignments = Array.isArray(assignments) ? assignments : [];
 
+
+  //#region Helper Functions
   const getCourseInitials = (course) => {
     if (!course || typeof course !== "string") return "N/A";
     return course.trim().slice(0, 3).toUpperCase();
@@ -54,7 +62,9 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
     e.stopPropagation();
     setExpandedId(null);
   };
+  //#endregion
 
+  //#region Description Edit Handlers
   const handleDescriptionClick = (e, assignment) => {
     e.stopPropagation();
     const rowId = assignment?._id || assignment?.id;
@@ -116,15 +126,84 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
       setSavingDescriptionId(null);
     }
   };
- //Handles the create assignment button
+  //#endregion
+
+  //#region Assignment Edit Handlers
+  //Handles the create assignment button
  const handleCreateNewAssignmentButton = () => {
     if(setNewAssignmentCreated === true){
       setNewAssignmentCreated(false);
     } else {
       setNewAssignmentCreated(true);
     }
-   //setNewAssignmentCreated(true);
-    //setTimeout(() => setNewAssignmentCreated(false), 3000);
+  };
+
+  const handleAssignmentDraftChange = (rowId, assignment, value) => {
+
+    setAssignmentDrafts((prev) => ({
+      ...prev,
+      [rowId]: {
+        ...prev[rowId],
+        [assignment]: value,
+      },
+    }));
+  };
+
+  const handleCancelAssignmentEdit = (e, rowId, originalAssignment) => {
+    e.stopPropagation();
+    setAssignmentDrafts((prev) => ({
+      ...prev,
+      [rowId]: {
+        title: originalAssignment?.title || "",
+        description: originalAssignment?.description || "",
+        course: originalAssignment?.course || "",
+        date: originalAssignment?.date || "",
+        priority: originalAssignment?.priority || "",
+      },
+    }));
+    setExpandedId(null);
+  };
+
+  //Saves the changes made to an assignment
+  /**
+   * Handles the save action for an assignment.
+   * @param {*} e - The event object.
+   * @param {*} assignment - The assignment object.
+   * @param {*} rowId - The ID of the row being edited.
+   * @returns {Promise<void>}
+   */
+  const handleSaveAssignment = async (e, assignment, rowId) => {
+    e.stopPropagation();
+    const assignmentId = assignment?._id;
+    if (!assignmentId) {
+      alert("Cannot update assignment without a valid ID.");
+      return;
+    }
+    if (!user?.token) {
+      alert("Please log in again before saving changes.");
+      return;
+    }
+    const updatedData = assignmentDrafts[rowId] || {};
+
+    setSavingAssignmentId(assignmentId);
+    try {
+      const response = await axiosInstance.put(
+        `/api/assignments/${assignmentId}`,
+        updatedData,
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      setAssignments((prev) =>
+        prev.map((item) =>
+          item._id === assignmentId ? response.data : item
+        )
+      );
+      setExpandedId(null);
+    }
+      catch (error) {
+        alert("Failed to save assignment changes.");
+      } finally {
+        setSavingAssignmentId(null);
+      }
   };
 
   const handleCreateNewAssignment = (assignment) => {
@@ -136,11 +215,9 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
       priority: "",
     });
 
-    
-
-
-
   };
+
+  //#endregion
 
   return (
     <div className="w-[1472px] h-[635px] items-end absolute top-[152px] left-[88px] bg-variable-collection-background-lightblue rounded-[28px] overflow-hidden flex flex-col">
@@ -321,45 +398,83 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
               )}
             </div>
             
-            {/*expanded description */}
+                        {/*expanded description */}
             {expandedId === rowId && (
               <div className="relative self-stretch w-full  flex-[0_0_auto] px-4 pb-4">
-                <div className="w-full rounded-[16px] bg-variable-collection-button-blue p-6 overflow-hidden">
-                  {editingDescriptionId === rowId ? (
-                    <div className="flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
-                      <textarea
-                        value={descriptionDrafts[rowId] ?? ""}
-                        onChange={(e) => handleDescriptionDraftChange(rowId, e.target.value)}
-                        className="w-full min-h-[120px] rounded-md border border-[#9a8fae] bg-white px-3 py-2 text-sm text-[#1d1b20]"
+                <div className="w-full rounded-[16px] bg-variable-collection-button-blue p-6 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-[#49454f]">Title</label>
+                      <input
+                        type="text"
+                        value={assignmentDrafts[rowId]?.title ?? ""}
+                        onChange={(e) => handleAssignmentDraftChange(rowId, "title", e.target.value)}
+                        className="w-full rounded-md border border-[#9a8fae] bg-white px-3 py-2 text-sm text-[#1d1b20]"
+                        placeholder="Assignment title"
                       />
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={(e) => handleSaveDescription(e, assignment)}
-                          disabled={savingDescriptionId === rowId}
-                          className="rounded-md bg-[#4f378a] px-4 py-2 text-white text-sm disabled:opacity-60"
-                        >
-                          {savingDescriptionId === rowId ? "Saving..." : "Save"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleCancelDescriptionEdit}
-                          disabled={savingDescriptionId === rowId}
-                          className="rounded-md bg-[#d0c8dd] px-4 py-2 text-[#1d1b20] text-sm disabled:opacity-60"
-                        >
-                          Cancel
-                        </button>
-                      </div>
                     </div>
-                  ) : (
-                    <div
-                      className="[font-family:'Roboto-Regular',Helvetica] font-normal text-[#1d1b20] text-sm tracking-[0.25px] leading-5 whitespace-pre-line cursor-text"
-                      onClick={(e) => handleDescriptionClick(e, assignment)}
-                      title="Click to edit description"
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-[#49454f]">Course</label>
+                      <input
+                        type="text"
+                        value={assignmentDrafts[rowId]?.course ?? ""}
+                        onChange={(e) => handleAssignmentDraftChange(rowId, "course", e.target.value)}
+                        className="w-full rounded-md border border-[#9a8fae] bg-white px-3 py-2 text-sm text-[#1d1b20]"
+                        placeholder="Course code"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-[#49454f]">Due Date</label>
+                      <input
+                        type="datetime-local"
+                        value={assignmentDrafts[rowId]?.date ?? ""}
+                        onChange={(e) => handleAssignmentDraftChange(rowId, "date", e.target.value)}
+                        className="w-full rounded-md border border-[#9a8fae] bg-white px-3 py-2 text-sm text-[#1d1b20]"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-[#49454f]">Priority</label>
+                      <input
+                        type="text"
+                        value={assignmentDrafts[rowId]?.priority ?? ""}
+                        onChange={(e) => handleAssignmentDraftChange(rowId, "priority", e.target.value)}
+                        className="w-full rounded-md border border-[#9a8fae] bg-white px-3 py-2 text-sm text-[#1d1b20]"
+                        placeholder="Low, Medium, High"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-col gap-1">
+                    <label className="text-xs text-[#49454f]">Description</label>
+                    <textarea
+                      value={assignmentDrafts[rowId]?.description ?? ""}
+                      onChange={(e) => handleAssignmentDraftChange(rowId, "description", e.target.value)}
+                      className="w-full min-h-[120px] rounded-md border border-[#9a8fae] bg-white px-3 py-2 text-sm text-[#1d1b20]"
+                      placeholder="Assignment details"
+                    />
+                  </div>
+
+                  <div className="mt-4 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => handleSaveAssignment(e, assignment, rowId)}
+                      disabled={savingAssignmentId === assignment?._id}
+                      className="rounded-md bg-[#4f378a] px-4 py-2 text-white text-sm disabled:opacity-60"
                     >
-                      {assignment?.description || "Click here to add a description."}
-                    </div>
-                  )}
+                      {savingAssignmentId === assignment?._id ? "Saving..." : "Save Changes"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => handleCancelAssignmentEdit(e, rowId, assignment)}
+                      disabled={savingAssignmentId === assignment?._id}
+                      className="rounded-md bg-[#d0c8dd] px-4 py-2 text-[#1d1b20] text-sm disabled:opacity-60"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -373,7 +488,7 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
       </div>
 
       {/*Create new assignment Button*/}
-      <div className="flex items-start justify-start gap-2 pl-4 pr-6 py-5 relative self-stretch w-full flex-[0_0_auto]" onClick={handleCreateNewAssignment}>
+      <div className="flex items-start justify-start gap-2 pl-4 pr-6 py-5 relative self-stretch w-full flex-[0_0_auto]">
        {newAssignmentCreated ? (
        (<div className="" onClick={handleCreateNewAssignmentButton}>
         <div>
