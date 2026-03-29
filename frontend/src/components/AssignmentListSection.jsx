@@ -1,10 +1,16 @@
 import { useState } from "react";
 import axiosInstance from "../axiosConfig";
 import { useAuth } from "../context/AuthContext";
-//import AssignmentForm  from "./AssignmentForm";
 import AssignmentCreate from "./AssignmentCreate";
-//import { CheckSmall } from "./CheckSmall";
-//import { Icon4 } from "./Icon4";
+
+
+///Bug Lists
+//1. first assignment in the list isnt information within it fields
+//2.
+
+//Possible Patches
+//1. add reacts UseEffect to properly handle states
+//2.
 
 export const AssignmentListSection = ({ assignments = [], isLoading = false, setAssignments, setAssignmentsEditing }) => {
   const { user } = useAuth();
@@ -49,9 +55,20 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
     return { shortDate, year, time };
   };
 
-  const handleRowClick = (id) => {
+  const handleRowClick = (id, assignment) => {
     setExpandedId((prev) => (prev === id ? null : id));
+
+      assignmentDrafts[id] = {
+        title: assignment?.title || "",
+        description: assignment?.description || "",
+        course: assignment?.course || "",
+        date: assignment?.date || "",
+        priority: assignment?.priority || "",
+      };
+      setAssignmentDrafts({ ...assignmentDrafts });
+
   };
+
 
   const handleCheck = (e, id) => {
     e.stopPropagation();
@@ -251,7 +268,7 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
                 height:
                   index === 0 || index === 2 || index === 3 ? "57px" : "56px",
               }}
-              onClick={() => handleRowClick(rowId)}
+              onClick={() => handleRowClick(rowId, assignment)}
             >
               {index === 0 && (
                 <div className="flex flex-col items-start justify-center px-4 py-0 relative self-stretch w-full flex-[0_0_auto] mt-[-0.50px]">
