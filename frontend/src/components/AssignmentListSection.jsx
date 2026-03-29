@@ -236,6 +236,8 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
 
   //#endregion
 
+
+  //#region react renderer
   return (
     <div className="w-[1472px] h-[635px] items-end absolute top-[152px] left-[88px] bg-variable-collection-background-lightblue rounded-[28px] overflow-hidden flex flex-col">
       <div className="items-start gap-4 p-6 relative self-stretch w-full flex-[0_0_auto] flex flex-col">
@@ -532,4 +534,5 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
 
     
   );
+  // #endregion
 };
