@@ -30,7 +30,7 @@ jobs:
     test:
         name: Run Tests
         timeout-minutes: 15 # Set a timeout for the test job
-        runs-on: ubuntu-latest
+        runs-on: self-hosted # Use self-hosted runners for testing
 
         strategy:
             matrix:
