@@ -16,7 +16,7 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
   const { user } = useAuth();
   const [expandedId, setExpandedId] = useState(null);
   const [checked, setChecked] = useState({});
-  const [editingDescriptionId, setEditingDescriptionId] = useState(null);
+  const [/*editingDescriptionId*/, setEditingDescriptionId] = useState(null);
   const [descriptionDrafts, setDescriptionDrafts] = useState({});
   const [savingDescriptionId, setSavingDescriptionId] = useState(null);
   const [newAssignmentCreated, setNewAssignmentCreated] = useState(false);
