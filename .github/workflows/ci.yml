@@ -70,12 +70,12 @@ jobs:
             touch .env
             echo "${{ secrets.PROD }}" > .env
 
-        #- run: pm2 start all
+        - run: pm2 start all
 
-        #- run: pm2 restart all
+        - run: pm2 restart all
 
-        # - name: Install dependencies
-        #   run: npm install
+        - name: Install dependencies
+          run: npm install
 
-        # - name: Run tests
-        #   run: npm test
+        - name: Run tests
+          run: npm test
