@@ -1,22 +1,36 @@
 import { useState } from "react";
 import axiosInstance from "../axiosConfig";
 import { useAuth } from "../context/AuthContext";
-//import AssignmentForm  from "./AssignmentForm";
 import AssignmentCreate from "./AssignmentCreate";
-//import { CheckSmall } from "./CheckSmall";
-//import { Icon4 } from "./Icon4";
+
+
+///Bug Lists
+//1. first assignment in the list isnt information within it fields
+//2. Check mark box ticks when the assignment box is expanded, should only tick when the check mark box is clicked
+
+//Possible Patches
+//1. add reacts UseEffect to properly handle states
+//2.
 
 export const AssignmentListSection = ({ assignments = [], isLoading = false, setAssignments, setAssignmentsEditing }) => {
   const { user } = useAuth();
   const [expandedId, setExpandedId] = useState(null);
-  //const [checked, setChecked] = useState({});
-  const [editingDescriptionId, setEditingDescriptionId] = useState(null);
-  const [descriptionDrafts, setDescriptionDrafts] = useState({});
-  const [savingDescriptionId, setSavingDescriptionId] = useState(null);
+  const [/*checked*/, setChecked] = useState({});
+  //const [editingDescriptionId, setEditingDescriptionId] = useState(null);
+  //const [descriptionDrafts, setDescriptionDrafts] = useState({});
+  //const [savingDescriptionId, setSavingDescriptionId] = useState(null);
   const [newAssignmentCreated, setNewAssignmentCreated] = useState(false);
+
+
+  //assignment drafts states
+  const [assignmentDrafts, setAssignmentDrafts] = useState({});
+  const [savingAssignmentId, setSavingAssignmentId] = useState(null);
+  
 
   const safeAssignments = Array.isArray(assignments) ? assignments : [];
 
+
+  //#region Helper Functions
   const getCourseInitials = (course) => {
     if (!course || typeof course !== "string") return "N/A";
     return course.trim().slice(0, 3).toUpperCase();
@@ -41,107 +55,188 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
     return { shortDate, year, time };
   };
 
-  const handleRowClick = (id) => {
+  const handleRowClick = (id, assignment) => {
     setExpandedId((prev) => (prev === id ? null : id));
+
+      assignmentDrafts[id] = {
+        title: assignment?.title || "",
+        description: assignment?.description || "",
+        course: assignment?.course || "",
+        date: assignment?.date || "",
+        priority: assignment?.priority || "",
+      };
+      setAssignmentDrafts({ ...assignmentDrafts });
+
   };
+
 
   const handleCheck = (e, id) => {
     e.stopPropagation();
-    //setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
+    setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   const handleClose = (e, id) => {
     e.stopPropagation();
     setExpandedId(null);
   };
+  //#endregion
 
-  const handleDescriptionClick = (e, assignment) => {
-    e.stopPropagation();
-    const rowId = assignment?._id || assignment?.id;
-    if (!rowId) return;
+  //#region Description Edit Handlers
+  // const handleDescriptionClick = (e, assignment) => {
+  //   e.stopPropagation();
+  //   const rowId = assignment?._id || assignment?.id;
+  //   if (!rowId) return;
 
-    setEditingDescriptionId(rowId);
-    setDescriptionDrafts((prev) => ({
-      ...prev,
-      [rowId]: assignment?.description || "",
-    }));
-  };
+  //   setEditingDescriptionId(rowId);
+  //   setDescriptionDrafts((prev) => ({
+  //     ...prev,
+  //     [rowId]: assignment?.description || "",
+  //   }));
+  // };
 
-  const handleDescriptionDraftChange = (rowId, value) => {
-    setDescriptionDrafts((prev) => ({
-      ...prev,
-      [rowId]: value,
-    }));
-  };
+  // const handleDescriptionDraftChange = (rowId, value) => {
+  //   setDescriptionDrafts((prev) => ({
+  //     ...prev,
+  //     [rowId]: value,
+  //   }));
+  // };
 
-  const handleCancelDescriptionEdit = (e) => {
-    e.stopPropagation();
-    setEditingDescriptionId(null);
-  };
+  // const handleCancelDescriptionEdit = (e) => {
+  //   e.stopPropagation();
+  //   setEditingDescriptionId(null);
+  // };
 
-  const handleSaveDescription = async (e, assignment) => {
-    e.stopPropagation();
+  // const handleSaveDescription = async (e, assignment) => {
+  //   e.stopPropagation();
 
-    const assignmentId = assignment?._id;
-    if (!assignmentId) {
-      alert("Cannot update assignment without a valid ID.");
-      return;
-    }
+  //   const assignmentId = assignment?._id;
+  //   if (!assignmentId) {
+  //     alert("Cannot update assignment without a valid ID.");
+  //     return;
+  //   }
 
-    if (!user?.token) {
-      alert("Please log in again before saving changes.");
-      return;
-    }
+  //   if (!user?.token) {
+  //     alert("Please log in again before saving changes.");
+  //     return;
+  //   }
 
-    const newDescription = descriptionDrafts[assignmentId] ?? "";
+  //   const newDescription = descriptionDrafts[assignmentId] ?? "";
 
-    setSavingDescriptionId(assignmentId);
-    try {
-      const response = await axiosInstance.put(
-        `/api/assignments/${assignmentId}`,
-        { description: newDescription },
-        { headers: { Authorization: `Bearer ${user.token}` } }
-      );
+  //   setSavingDescriptionId(assignmentId);
+  //   try {
+  //     const response = await axiosInstance.put(
+  //       `/api/assignments/${assignmentId}`,
+  //       { description: newDescription },
+  //       { headers: { Authorization: `Bearer ${user.token}` } }
+  //     );
 
-      setAssignments((prev) =>
-        prev.map((item) =>
-          item._id === assignmentId ? response.data : item
-        )
-      );
+  //     setAssignments((prev) =>
+  //       prev.map((item) =>
+  //         item._id === assignmentId ? response.data : item
+  //       )
+  //     );
 
-      setEditingDescriptionId(null);
-    } catch (error) {
-      alert("Failed to save description.");
-    } finally {
-      setSavingDescriptionId(null);
-    }
-  };
- //Handles the create assignment button
+  //     setEditingDescriptionId(null);
+  //   } catch (error) {
+  //     alert("Failed to save description.");
+  //   } finally {
+  //     setSavingDescriptionId(null);
+  //   }
+  // };
+  //#endregion
+
+  //#region Assignment Edit Handlers
+  //Handles the create assignment button
  const handleCreateNewAssignmentButton = () => {
     if(setNewAssignmentCreated === true){
       setNewAssignmentCreated(false);
     } else {
       setNewAssignmentCreated(true);
     }
-   //setNewAssignmentCreated(true);
-    //setTimeout(() => setNewAssignmentCreated(false), 3000);
   };
 
-  const handleCreateNewAssignment = (assignment) => {
-    setAssignmentsEditing({
-      title: "",
-      description: "",
-      course: "",
-      date: "",
-      priority: "",
-    });
+  const handleAssignmentDraftChange = (rowId, assignment, value) => {
 
-    
-
-
-
+    setAssignmentDrafts((prev) => ({
+      ...prev,
+      [rowId]: {
+        ...prev[rowId],
+        [assignment]: value,
+      },
+    }));
   };
 
+  const handleCancelAssignmentEdit = (e, rowId, originalAssignment) => {
+    e.stopPropagation();
+    setAssignmentDrafts((prev) => ({
+      ...prev,
+      [rowId]: {
+        title: originalAssignment?.title || "",
+        description: originalAssignment?.description || "",
+        course: originalAssignment?.course || "",
+        date: originalAssignment?.date || "",
+        priority: originalAssignment?.priority || "",
+      },
+    }));
+    setExpandedId(null);
+  };
+
+  //Saves the changes made to an assignment
+  /**
+   * Handles the save action for an assignment.
+   * @param {*} e - The event object.
+   * @param {*} assignment - The assignment object.
+   * @param {*} rowId - The ID of the row being edited.
+   * @returns {Promise<void>}
+   */
+  const handleSaveAssignment = async (e, assignment, rowId) => {
+    e.stopPropagation();
+    const assignmentId = assignment?._id;
+    if (!assignmentId) {
+      alert("Cannot update assignment without a valid ID.");
+      return;
+    }
+    if (!user?.token) {
+      alert("Please log in again before saving changes.");
+      return;
+    }
+    const updatedData = assignmentDrafts[rowId] || {};
+
+    setSavingAssignmentId(assignmentId);
+    try {
+      const response = await axiosInstance.put(
+        `/api/assignments/${assignmentId}`,
+        updatedData,
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      setAssignments((prev) =>
+        prev.map((item) =>
+          item._id === assignmentId ? response.data : item
+        )
+      );
+      setExpandedId(null);
+    }
+      catch (error) {
+        alert("Failed to save assignment changes.");
+      } finally {
+        setSavingAssignmentId(null);
+      }
+  };
+
+  // const handleCreateNewAssignment = (assignment) => {
+  //   setAssignmentsEditing({
+  //     title: "",
+  //     description: "",
+  //     course: "",
+  //     date: "",
+  //     priority: "",
+  //   });
+
+  // };
+
+  //#endregion
+
+  //#region react renderer
   return (
     <div className="w-[1472px] h-[635px] items-end absolute top-[152px] left-[88px] bg-variable-collection-background-lightblue rounded-[28px] overflow-hidden flex flex-col">
       <div className="items-start gap-4 p-6 relative self-stretch w-full flex-[0_0_auto] flex flex-col">
@@ -174,7 +269,7 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
                 height:
                   index === 0 || index === 2 || index === 3 ? "57px" : "56px",
               }}
-              onClick={() => handleRowClick(rowId)}
+              onClick={() => handleRowClick(rowId, assignment)}
             >
               {index === 0 && (
                 <div className="flex flex-col items-start justify-center px-4 py-0 relative self-stretch w-full flex-[0_0_auto] mt-[-0.50px]">
@@ -321,45 +416,83 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
               )}
             </div>
             
-            {/*expanded description */}
+                        {/*expanded description */}
             {expandedId === rowId && (
               <div className="relative self-stretch w-full  flex-[0_0_auto] px-4 pb-4">
-                <div className="w-full rounded-[16px] bg-variable-collection-button-blue p-6 overflow-hidden">
-                  {editingDescriptionId === rowId ? (
-                    <div className="flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
-                      <textarea
-                        value={descriptionDrafts[rowId] ?? ""}
-                        onChange={(e) => handleDescriptionDraftChange(rowId, e.target.value)}
-                        className="w-full min-h-[120px] rounded-md border border-[#9a8fae] bg-white px-3 py-2 text-sm text-[#1d1b20]"
+                <div className="w-full rounded-[16px] bg-variable-collection-button-blue p-6 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-[#49454f]">Title</label>
+                      <input
+                        type="text"
+                        value={assignmentDrafts[rowId]?.title ?? ""}
+                        onChange={(e) => handleAssignmentDraftChange(rowId, "title", e.target.value)}
+                        className="w-full rounded-md border border-[#9a8fae] bg-white px-3 py-2 text-sm text-[#1d1b20]"
+                        placeholder="Assignment title"
                       />
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={(e) => handleSaveDescription(e, assignment)}
-                          disabled={savingDescriptionId === rowId}
-                          className="rounded-md bg-[#4f378a] px-4 py-2 text-white text-sm disabled:opacity-60"
-                        >
-                          {savingDescriptionId === rowId ? "Saving..." : "Save"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleCancelDescriptionEdit}
-                          disabled={savingDescriptionId === rowId}
-                          className="rounded-md bg-[#d0c8dd] px-4 py-2 text-[#1d1b20] text-sm disabled:opacity-60"
-                        >
-                          Cancel
-                        </button>
-                      </div>
                     </div>
-                  ) : (
-                    <div
-                      className="[font-family:'Roboto-Regular',Helvetica] font-normal text-[#1d1b20] text-sm tracking-[0.25px] leading-5 whitespace-pre-line cursor-text"
-                      onClick={(e) => handleDescriptionClick(e, assignment)}
-                      title="Click to edit description"
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-[#49454f]">Course</label>
+                      <input
+                        type="text"
+                        value={assignmentDrafts[rowId]?.course ?? ""}
+                        onChange={(e) => handleAssignmentDraftChange(rowId, "course", e.target.value)}
+                        className="w-full rounded-md border border-[#9a8fae] bg-white px-3 py-2 text-sm text-[#1d1b20]"
+                        placeholder="Course code"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-[#49454f]">Due Date</label>
+                      <input
+                        type="datetime-local"
+                        value={assignmentDrafts[rowId]?.date ?? ""}
+                        onChange={(e) => handleAssignmentDraftChange(rowId, "date", e.target.value)}
+                        className="w-full rounded-md border border-[#9a8fae] bg-white px-3 py-2 text-sm text-[#1d1b20]"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-[#49454f]">Priority</label>
+                      <input
+                        type="text"
+                        value={assignmentDrafts[rowId]?.priority ?? ""}
+                        onChange={(e) => handleAssignmentDraftChange(rowId, "priority", e.target.value)}
+                        className="w-full rounded-md border border-[#9a8fae] bg-white px-3 py-2 text-sm text-[#1d1b20]"
+                        placeholder="Low, Medium, High"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-col gap-1">
+                    <label className="text-xs text-[#49454f]">Description</label>
+                    <textarea
+                      value={assignmentDrafts[rowId]?.description ?? ""}
+                      onChange={(e) => handleAssignmentDraftChange(rowId, "description", e.target.value)}
+                      className="w-full min-h-[120px] rounded-md border border-[#9a8fae] bg-white px-3 py-2 text-sm text-[#1d1b20]"
+                      placeholder="Assignment details"
+                    />
+                  </div>
+
+                  <div className="mt-4 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => handleSaveAssignment(e, assignment, rowId)}
+                      disabled={savingAssignmentId === assignment?._id}
+                      className="rounded-md bg-[#4f378a] px-4 py-2 text-white text-sm disabled:opacity-60"
                     >
-                      {assignment?.description || "Click here to add a description."}
-                    </div>
-                  )}
+                      {savingAssignmentId === assignment?._id ? "Saving..." : "Save Changes"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => handleCancelAssignmentEdit(e, rowId, assignment)}
+                      disabled={savingAssignmentId === assignment?._id}
+                      className="rounded-md bg-[#d0c8dd] px-4 py-2 text-[#1d1b20] text-sm disabled:opacity-60"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -373,7 +506,7 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
       </div>
 
       {/*Create new assignment Button*/}
-      <div className="flex items-start justify-start gap-2 pl-4 pr-6 py-5 relative self-stretch w-full flex-[0_0_auto]" onClick={handleCreateNewAssignment}>
+      <div className="flex items-start justify-start gap-2 pl-4 pr-6 py-5 relative self-stretch w-full flex-[0_0_auto]">
        {newAssignmentCreated ? (
        (<div className="" onClick={handleCreateNewAssignmentButton}>
         <div>
@@ -400,4 +533,5 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
 
     
   );
+  // #endregion
 };
