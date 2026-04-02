@@ -16,7 +16,7 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
   const { user } = useAuth();
   const [expandedId, setExpandedId] = useState(null);
   const [checked, setChecked] = useState({});
-  const [/*editingDescriptionId*/, setEditingDescriptionId] = useState(null);
+  const [editingDescriptionId, setEditingDescriptionId] = useState(null);
   const [descriptionDrafts, setDescriptionDrafts] = useState({});
   const [savingDescriptionId, setSavingDescriptionId] = useState(null);
   const [newAssignmentCreated, setNewAssignmentCreated] = useState(false);
@@ -82,67 +82,67 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
   //#endregion
 
   //#region Description Edit Handlers
-  const handleDescriptionClick = (e, assignment) => {
-    e.stopPropagation();
-    const rowId = assignment?._id || assignment?.id;
-    if (!rowId) return;
+  // const handleDescriptionClick = (e, assignment) => {
+  //   e.stopPropagation();
+  //   const rowId = assignment?._id || assignment?.id;
+  //   if (!rowId) return;
 
-    setEditingDescriptionId(rowId);
-    setDescriptionDrafts((prev) => ({
-      ...prev,
-      [rowId]: assignment?.description || "",
-    }));
-  };
+  //   setEditingDescriptionId(rowId);
+  //   setDescriptionDrafts((prev) => ({
+  //     ...prev,
+  //     [rowId]: assignment?.description || "",
+  //   }));
+  // };
 
-  const handleDescriptionDraftChange = (rowId, value) => {
-    setDescriptionDrafts((prev) => ({
-      ...prev,
-      [rowId]: value,
-    }));
-  };
+  // const handleDescriptionDraftChange = (rowId, value) => {
+  //   setDescriptionDrafts((prev) => ({
+  //     ...prev,
+  //     [rowId]: value,
+  //   }));
+  // };
 
-  const handleCancelDescriptionEdit = (e) => {
-    e.stopPropagation();
-    setEditingDescriptionId(null);
-  };
+  // const handleCancelDescriptionEdit = (e) => {
+  //   e.stopPropagation();
+  //   setEditingDescriptionId(null);
+  // };
 
-  const handleSaveDescription = async (e, assignment) => {
-    e.stopPropagation();
+  // const handleSaveDescription = async (e, assignment) => {
+  //   e.stopPropagation();
 
-    const assignmentId = assignment?._id;
-    if (!assignmentId) {
-      alert("Cannot update assignment without a valid ID.");
-      return;
-    }
+  //   const assignmentId = assignment?._id;
+  //   if (!assignmentId) {
+  //     alert("Cannot update assignment without a valid ID.");
+  //     return;
+  //   }
 
-    if (!user?.token) {
-      alert("Please log in again before saving changes.");
-      return;
-    }
+  //   if (!user?.token) {
+  //     alert("Please log in again before saving changes.");
+  //     return;
+  //   }
 
-    const newDescription = descriptionDrafts[assignmentId] ?? "";
+  //   const newDescription = descriptionDrafts[assignmentId] ?? "";
 
-    setSavingDescriptionId(assignmentId);
-    try {
-      const response = await axiosInstance.put(
-        `/api/assignments/${assignmentId}`,
-        { description: newDescription },
-        { headers: { Authorization: `Bearer ${user.token}` } }
-      );
+  //   setSavingDescriptionId(assignmentId);
+  //   try {
+  //     const response = await axiosInstance.put(
+  //       `/api/assignments/${assignmentId}`,
+  //       { description: newDescription },
+  //       { headers: { Authorization: `Bearer ${user.token}` } }
+  //     );
 
-      setAssignments((prev) =>
-        prev.map((item) =>
-          item._id === assignmentId ? response.data : item
-        )
-      );
+  //     setAssignments((prev) =>
+  //       prev.map((item) =>
+  //         item._id === assignmentId ? response.data : item
+  //       )
+  //     );
 
-      setEditingDescriptionId(null);
-    } catch (error) {
-      alert("Failed to save description.");
-    } finally {
-      setSavingDescriptionId(null);
-    }
-  };
+  //     setEditingDescriptionId(null);
+  //   } catch (error) {
+  //     alert("Failed to save description.");
+  //   } finally {
+  //     setSavingDescriptionId(null);
+  //   }
+  // };
   //#endregion
 
   //#region Assignment Edit Handlers
