@@ -7,7 +7,7 @@ import { AssignmentListSection } from '../components/AssignmentListSection';
 const Assignments = () => {
   const { user } = useAuth();
   const [assignments, setAssignments] = useState([]);
-  const [/*editingAssignment, setEditingAssignment*/] = useState(null);
+  const [/*editingAssignment,*/ setEditingAssignment] = useState(null);
 
   // Fetch assignments on component mount
   // Notes for liam, This runs when the component mounts and whenever the user changes (e.g., login/logout).
