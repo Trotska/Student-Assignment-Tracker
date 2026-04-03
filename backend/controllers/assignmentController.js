@@ -58,10 +58,9 @@ const updateAssignment = async (req, res) => {
 };
 
 const deleteAssignment = async (req, res) => {
-    try {        const assignment = await Assignment.findOne({
-            _id: req.params.id,
-            userId: req.user.id,
-        });
+    try {
+        
+        const assignment = await Assignment.findOne({_id: req.params.id,userId: req.user.id,});
 
         if (!assignment) {
             return res.status(404).json({ message: 'Assignment not found' });
