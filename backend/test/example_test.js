@@ -159,3 +159,41 @@ describe('Get Assignments By User Test', () => {
     });
 });
 
+decribe('Delete Assignment Test',() => {
+    it('should delete an existing assignment', async () => {
+        const assignmentId = mongoose.Types.ObjectId();
+        const existingAssignment = {
+            _id: assignmentId,
+            title: "Test Assignment",
+            userId: mongoose.Types.ObjectId(),
+            remove: sinon.stub().resolvesThis(),
+        };
+        const findOneStub = sinon.stub(Assignment, 'findOne').resolves(existingAssignment);
+
+        const req = {
+            params: { id: assignmentId },
+            user: { id: existingAssignment.userId },
+        };
+
+        const res = {
+            status: sinon.stub().returnsThis(),
+            json: sinon.stub(),
+        };
+
+        await deleteAssignment(req, res);
+
+        expect(findOneStub.calledOnceWith({
+            _id: assignmentId,
+            userId: req.user.id,
+        })).to.be.true;
+        expect(existingAssignment.remove.calledOnce).to.be.true;
+        expect(res.status.calledWith(200)).to.be.true;
+        expect(res.json.calledWith({ message: 'Assignment deleted successfully' })).to.be.true;
+
+        findOneStub.restore();
+
+    });
+});
+
+
+

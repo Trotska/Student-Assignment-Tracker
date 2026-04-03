@@ -57,9 +57,27 @@ const updateAssignment = async (req, res) => {
     }
 };
 
+const deleteAssignment = async (req, res) => {
+    try {        const assignment = await Assignment.findOne({
+            _id: req.params.id,
+            userId: req.user.id,
+        });
+
+        if (!assignment) {
+            return res.status(404).json({ message: 'Assignment not found' });
+        }
+
+        await assignment.remove();
+        res.status(200).json({ message: 'Assignment deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 //exporting the controller functions to be used in routes
 module.exports = {
     createAssignment,
     getAssignmentsByUser,
     updateAssignment,
+    deleteAssignment,
 };

@@ -223,6 +223,28 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
       }
   };
 
+  const handleDeleteAssignment = async (e, assignmentId) => {
+    e.stopPropagation();
+    if (!assignmentId) {
+      alert("Cannot delete assignment without a valid ID.");
+      return;
+    }
+    if (!user?.token) {
+      alert("Please log in again before deleting.");
+      return;
+    }
+    try {
+      await axiosInstance.delete(
+        `/api/assignments/${assignmentId}`,
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      setAssignments((prev) => prev.filter((item) => item._id !== assignmentId));
+    }
+    catch (error) {
+      alert("Failed to delete assignment.");
+    }
+  };
+
   // const handleCreateNewAssignment = (assignment) => {
   //   setAssignmentsEditing({
   //     title: "",
@@ -356,14 +378,15 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
                     </div>
                   </div>
                     
-                {/*Progress bar */}
-                  <div className="flex flex-col w-[93px] h-[43px] items-center justify-center gap-0.5 rounded-lg relative bg-variable-collection-button-blue overflow-hidden">
-                    <div className="flex items-center justify-center gap-2 px-6 py-4 relative self-stretch w-full flex-[0_0_auto] mt-[-6.50px] overflow-hidden">
-                      <div className="relative flex items-center w-fit mt-[4.00px] ml-[-19.50px] mr-[-19.50px] z-0 font-m3-title-medium font-[number:var(--m3-title-medium-font-weight)] text-variable-collection-text-color text-[length:var(--m3-title-medium-font-size)] tracking-[var(--m3-title-medium-letter-spacing)] leading-[var(--m3-title-medium-line-height)] whitespace-nowrap [font-style:var(--m3-title-medium-font-style)]">
-                        {/* {assignment.status} */}
-                      </div>
-                    </div>
-                  </div>
+                {/*Delete button */}
+                {/*may need to redesign css at some point*/}
+                  <button
+                    type="button"
+                    onClick={(e) => handleDeleteAssignment(e, assignment?._id)}
+                    className="flex w-[93px] h-[43px] items-center justify-center rounded-lg bg-[#b3261e] text-white text-sm font-medium hover:bg-[#8f1f19] transition-colors"
+                  >
+                    Delete
+                  </button>
 
                   {expandedId === rowId ? (
                     <div
