@@ -47,7 +47,7 @@ jobs:
           with:
             node-version: '18'
 
-        #- run: pm2 stop all
+        - run: pm2 stop all
 
         - name: Install Backend Dependencies
           working-directory: ./backend
@@ -70,15 +70,14 @@ jobs:
             touch .env
             echo "${{ secrets.PROD }}" > .env
     
-    
-          # Run backend tests
-        # - name: Run Backend Tests
-        #   env:
-        #    MONGO_URI: ${{ secrets.MONGO_URI }}
-        #    JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        #    PORT: ${{ secrets.PORT }}
-        #    working-directory: ./backend
-        #   run: npm run test
+         #Run backend tests
+        - name: Run Backend Tests
+          env:
+           MONGO_URI: ${{ secrets.MONGO_URI }}
+           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+           PORT: ${{ secrets.PORT }}
+           working-directory: ./backend
+          run: npm run test
 
         - run: pm2 start all
 
