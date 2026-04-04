@@ -67,17 +67,18 @@ jobs:
         - run: npm ci
         - run: | 
             cd ./backend
+            npm run test
             touch .env
             echo "${{ secrets.PROD }}" > .env
     
          #Run backend tests
-        - name: Run Backend Tests
-          env:
-           MONGO_URI: ${{ secrets.MONGO_URI }}
-           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-           PORT: ${{ secrets.PORT }}
-           working-directory: ../backend
-          run: npm run test
+        # - name: Run Backend Tests
+        #   env:
+        #    MONGO_URI: ${{ secrets.MONGO_URI }}
+        #    JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        #    PORT: ${{ secrets.PORT }}
+        #    working-directory: ../backend
+        #   run: npm run test
 
         - run: pm2 start all
 
