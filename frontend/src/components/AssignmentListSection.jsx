@@ -31,21 +31,26 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
 
 
   //#region Helper Functions
+  //function that returns the first three characters of a given string
   const getCourseInitials = (course) => {
     if (!course || typeof course !== "string") return "N/A";
     return course.trim().slice(0, 3).toUpperCase();
   };
 
+  //Function to format the date string
   const formatDateParts = (rawDate) => {
+    //create a date object
     const parsedDate = new Date(rawDate);
+    //handle NULL case
     if (Number.isNaN(parsedDate.getTime())) {
       return { shortDate: "No date", year: "----", time: "--:--" };
     }
-
+    //convert to short string
     const shortDate = parsedDate.toLocaleDateString(undefined, {
       month: "short",
       day: "numeric",
     });
+    //convert to string
     const year = parsedDate.getFullYear().toString();
     const time = parsedDate.toLocaleTimeString(undefined, {
       hour: "numeric",
@@ -55,6 +60,7 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
     return { shortDate, year, time };
   };
 
+  //function to expand a row with a given ID
   const handleRowClick = (id, assignment) => {
     setExpandedId((prev) => (prev === id ? null : id));
 
@@ -69,81 +75,19 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
 
   };
 
-
+  //function to handle check mark box
   const handleCheck = (e, id) => {
     e.stopPropagation();
     setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  //function to handle closing a expanded box
   const handleClose = (e, id) => {
     e.stopPropagation();
     setExpandedId(null);
   };
   //#endregion
 
-  //#region Description Edit Handlers
-  // const handleDescriptionClick = (e, assignment) => {
-  //   e.stopPropagation();
-  //   const rowId = assignment?._id || assignment?.id;
-  //   if (!rowId) return;
-
-  //   setEditingDescriptionId(rowId);
-  //   setDescriptionDrafts((prev) => ({
-  //     ...prev,
-  //     [rowId]: assignment?.description || "",
-  //   }));
-  // };
-
-  // const handleDescriptionDraftChange = (rowId, value) => {
-  //   setDescriptionDrafts((prev) => ({
-  //     ...prev,
-  //     [rowId]: value,
-  //   }));
-  // };
-
-  // const handleCancelDescriptionEdit = (e) => {
-  //   e.stopPropagation();
-  //   setEditingDescriptionId(null);
-  // };
-
-  // const handleSaveDescription = async (e, assignment) => {
-  //   e.stopPropagation();
-
-  //   const assignmentId = assignment?._id;
-  //   if (!assignmentId) {
-  //     alert("Cannot update assignment without a valid ID.");
-  //     return;
-  //   }
-
-  //   if (!user?.token) {
-  //     alert("Please log in again before saving changes.");
-  //     return;
-  //   }
-
-  //   const newDescription = descriptionDrafts[assignmentId] ?? "";
-
-  //   setSavingDescriptionId(assignmentId);
-  //   try {
-  //     const response = await axiosInstance.put(
-  //       `/api/assignments/${assignmentId}`,
-  //       { description: newDescription },
-  //       { headers: { Authorization: `Bearer ${user.token}` } }
-  //     );
-
-  //     setAssignments((prev) =>
-  //       prev.map((item) =>
-  //         item._id === assignmentId ? response.data : item
-  //       )
-  //     );
-
-  //     setEditingDescriptionId(null);
-  //   } catch (error) {
-  //     alert("Failed to save description.");
-  //   } finally {
-  //     setSavingDescriptionId(null);
-  //   }
-  // };
-  //#endregion
 
   //#region Assignment Edit Handlers
   //Handles the create assignment button
@@ -155,8 +99,9 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
     }
   };
 
+  //handles changes to the draft useState
   const handleAssignmentDraftChange = (rowId, assignment, value) => {
-
+    // edits the draft object
     setAssignmentDrafts((prev) => ({
       ...prev,
       [rowId]: {
@@ -166,6 +111,7 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
     }));
   };
 
+  //resets data if user doesnt save
   const handleCancelAssignmentEdit = (e, rowId, originalAssignment) => {
     e.stopPropagation();
     setAssignmentDrafts((prev) => ({
@@ -223,6 +169,7 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
       }
   };
 
+  //function to handleDeleting the assignment
   const handleDeleteAssignment = async (e, assignmentId) => {
     e.stopPropagation();
     if (!assignmentId) {
@@ -383,8 +330,7 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
                   <button
                     type="button"
                     onClick={(e) => handleDeleteAssignment(e, assignment?._id)}
-                    className="flex w-[93px] h-[43px] items-center justify-center rounded-lg bg-[#b3261e] text-white text-sm font-medium hover:bg-[#8f1f19] transition-colors"
-                  >
+                    className="flex w-[93px] h-[43px] items-center justify-center rounded-lg bg-[#b3261e] text-white text-sm font-medium hover:bg-[#8f1f19] transition-colors">
                     Delete
                   </button>
 
@@ -439,7 +385,7 @@ export const AssignmentListSection = ({ assignments = [], isLoading = false, set
               )}
             </div>
             
-                        {/*expanded description */}
+            {/*expanded description */}
             {expandedId === rowId && (
               <div className="relative self-stretch w-full  flex-[0_0_auto] px-4 pb-4">
                 <div className="w-full rounded-[16px] bg-variable-collection-button-blue p-6 overflow-hidden" onClick={(e) => e.stopPropagation()}>
