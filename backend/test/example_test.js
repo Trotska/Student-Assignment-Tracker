@@ -7,7 +7,7 @@ const sinon = require('sinon');
 const mongoose = require('mongoose');
 const { expect } = chai;
 const Assignment = require('../models/Assignment');
-const { getAssignmentsByUser, createAssignment, updateAssignment } = require('../controllers/assignmentController');
+const { getAssignmentsByUser, createAssignment, updateAssignment,deleteAssignment } = require('../controllers/assignmentController');
 
 chai.use(chaiHttp);
 let server;
@@ -159,7 +159,7 @@ describe('Get Assignments By User Test', () => {
     });
 });
 
-decribe('Delete Assignment Test',() => {
+describe('Delete Assignment Test',() => {
     it('should delete an existing assignment', async () => {
         const assignmentId = mongoose.Types.ObjectId();
         const existingAssignment = {
