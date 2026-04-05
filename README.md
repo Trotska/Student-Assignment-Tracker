@@ -1,8 +1,6 @@
 
 **Student Assignment Tracker**
--public IP: 13.236.95.19
-
-
+-public IP: http://16.176.67.173
 ---
 **Instructions on setting up project**
  - AWS Ec2 Instance
